@@ -1,4 +1,4 @@
-let s:suite = themis#suite('go runtime')
+let s:suite = themis#suite('profile')
 let s:assert = themis#helper('assert')
 
 function! s:suite.test_profile_parse()
@@ -11,7 +11,7 @@ function! s:suite.test_profile_parse()
     \ 'env/serialize.go:48.3,52.20 0 0',
     \ ]
   let l:profile = gocover#profile#parse(l:raw_profile)
-  call s:assert.equals({
+  call s:assert.equals(l:profile, {
     \   'env/parse.go': [{
     \     'file': 'env/parse.go',
     \     'startline': 10,
@@ -54,5 +54,5 @@ function! s:suite.test_profile_parse()
     \     'numstmt': 0,
     \     'cnt': 0,
     \   }],
-    \ }, l:profile)
+    \ })
 endfunction

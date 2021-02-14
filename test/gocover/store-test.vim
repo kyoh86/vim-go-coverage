@@ -1,6 +1,6 @@
 scriptencoding utf-8
 
-let s:suite = themis#suite('go runtime')
+let s:suite = themis#suite('store')
 let s:assert = themis#helper('assert')
 
 function! s:suite.test_store_simple()
