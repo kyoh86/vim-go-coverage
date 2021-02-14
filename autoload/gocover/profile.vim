@@ -1,3 +1,5 @@
+scriptencoding utf-8
+
 " profile.vim
 "
 " Parse go test coverage raw profile.

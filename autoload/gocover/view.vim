@@ -1,8 +1,10 @@
+scriptencoding utf-8
+
 " view.vim
 "
-" Manage views (tabs, windows).
+" Manage views (tabs, windows, messages).
 "
-" Author: kyoh86 <me@kyoh86.dev>
+" Author: kyoh86<me@kyoh86.dev>
 " License: MIT
 
 """ Shorthand for matchaddpos
@@ -19,4 +21,27 @@ function! gocover#view#each_windows(f) abort
       call a:f(l:win_id)
     endfor
   endfor
+endfunction
+
+""" Echo messages as debug level.
+function! gocover#view#debug(s) abort
+  if &verbose is 0
+    return
+  endif
+  echohl None | echomsg a:s
+endfunction
+
+""" Echo messages as info level.
+function! gocover#view#info(s) abort
+  echohl None | echomsg a:s
+endfunction
+
+""" Echo messages as warning level.
+function! gocover#view#warning(s) abort
+  echohl WarningMsg | echomsg a:s | echohl None
+endfunction
+
+""" Echo messages as error level.
+function! gocover#view#error(s) abort
+  echohl ErrorMsg | echomsg a:s | echohl None
 endfunction

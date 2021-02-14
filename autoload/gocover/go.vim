@@ -1,8 +1,10 @@
+scriptencoding utf-8
+
 " go.vim
 "
 " Utilities for working with Go tools.
 "
-" Author: kyoh86 <me@kyoh86.dev>
+" Author: kyoh86<me@kyoh86.dev>
 " License: MIT
 
 let s:V = vital#gocover#new()
@@ -26,7 +28,7 @@ function! gocover#go#module(dir) abort
         \ ['go', 'list', '-m', '-f', "{{.Path}}\x1F{{.Dir}}"],
         \ {'cwd': a:dir})
   if l:err isnot# v:null
-    " TODO: msgerr l:err.stderr
+    call gocover#view#error(join(l:err.stderr, '\n'))
     return []
   endif
   let l:terms = split(l:result.stdout[0], "\x1F")
@@ -40,20 +42,19 @@ endfunction
 function! gocover#go#package(dir) abort
   let [l:result, l:err] = s:exec(['go', 'list', './'], {'cwd': a:dir})
   if l:err isnot# v:null
-    " TODO: msgerr l:err.stderr
+    call gocover#view#error(join(l:err.stderr, '\n'))
     return ''
   endif
 
   return l:result.stdout[0]
 endfunction
 
+""" Get path to file as package/path/file.go
 function! gocover#go#packagefile(file) abort
-  " Get path to file as package/path/file.go
   return gocover#go#package(fnamemodify(a:file, ':h')) . '/' . expand(fnamemodify(a:file, ':t'))
 endfunction
 
 """ Run a test and get raw coverage profile
-"TODO: receive build tags from... caller
 function! gocover#go#profile(dir) abort
   let l:tmp = tempname()
   try
@@ -61,7 +62,7 @@ function! gocover#go#profile(dir) abort
           \ ['go', 'test', '-coverprofile', l:tmp],
           \ {'cwd': a:dir})
     if l:err isnot# v:null
-      " TODO: msgerr l:err.stderr
+      call gocover#view#error(join(l:err.stderr, '\n'))
       return v:null
     endif
 

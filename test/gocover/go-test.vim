@@ -1,3 +1,5 @@
+scriptencoding utf-8
+
 let s:suite = themis#suite('go runtime')
 let s:assert = themis#helper('assert')
 
@@ -44,6 +46,6 @@ endfunction
 
 function! s:suite.test_profile_notest()
   let l:root_dir = expand('<sfile>:p:h') . '/test/pkg'
-  let l:got = gocover#go#profile(l:root_dir . '/child2')
+  let l:got = gocover#go#profile(l:root_dir . '/notest')
   call s:assert.same(l:got, v:null)
 endfunction

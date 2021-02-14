@@ -1,3 +1,5 @@
+scriptencoding utf-8
+
 " store.vim
 "
 " An implementation for the rolling stored map.

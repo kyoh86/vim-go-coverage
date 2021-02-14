@@ -1,8 +1,10 @@
+scriptencoding utf-8
+
 " coverage.vim
 "
 " Implement entrypoints 
 " 
-" Author: kyoh86 <me@kyoh86.dev>
+" Author: kyoh86<me@kyoh86.dev>
 " License: MIT
 
 """ Highlights.

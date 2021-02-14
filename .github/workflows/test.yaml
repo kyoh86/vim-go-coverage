@@ -1,0 +1,39 @@
+name: Test
+
+on: push
+
+jobs:
+  test-vim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Initialize
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y vim git
+      - name: Clone repositories
+        run: |
+          # Test framework
+          git clone --depth 1 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+          # Repository under test
+          git clone --depth 1 --single-branch https://github.com/kyoh86/vim-go-coverage /tmp/vim-go-coverage
+      - name: Run tests
+        run: /tmp/vim-themis/bin/themis -r
+        working-directory: /tmp/vim-go-coverage
+  test-neovim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Initialize
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y neovim git
+      - name: Clone repositories
+        run: |
+          # Test framework
+          git clone --depth 1 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+          # Repository under test
+          git clone --depth 1 --single-branch https://github.com/kyoh86/vim-go-coverage /tmp/vim-go-coverage
+      - name: Run tests
+        env:
+          THEMIS_VIM=nvim
+        run: /tmp/vim-themis/bin/themis -r
+        working-directory: /tmp/vim-go-coverage

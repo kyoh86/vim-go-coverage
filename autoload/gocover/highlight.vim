@@ -1,3 +1,5 @@
+scriptencoding utf-8
+
 " highlight.vim
 "
 " Highlight with a coverage profile parsed by gocover#profile#parse.
@@ -95,9 +97,8 @@ function! gocover#highlight#apply_entry(entry, matchadd) abort
 
   " Highlight first-line.
   call a:matchadd(l:group, [[a:entry.startline, a:entry.startcol, a:entry.firsttail - a:entry.startcol]])
-  echo a:entry
 
-  if a:entry.startline == a:entry.endline
+  if a:entry.startline is a:entry.endline
     return
   endif
 
