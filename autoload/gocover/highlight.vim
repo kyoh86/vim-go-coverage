@@ -49,6 +49,9 @@ function! gocover#highlight#apply_win_id(win_id) abort
 
   for l:entry in l:bufprofile
     let l:entry = s:fit_entry(l:bufnr, l:entry)
+    if l:entry is# v:null
+      continue
+    endif
     call gocover#highlight#apply_entry(l:entry, function('gocover#view#matchadd', [l:win_id]))
   endfor
 endfunction
@@ -73,9 +76,13 @@ endfun
 function! s:fit_entry(bufnr, entry) abort
   " Highlight entire lines, instead of starting at the first non-space
   " character.
-  let l:firstline = getbufline(a:bufnr, a:entry.startline)[0]
+  let l:lines = getbufline(a:bufnr, a:entry.startline)
+  if len(l:lines) is 0
+    return v:null
+  endif
+  let l:firstline = l:lines[0]
   if l:firstline[:a:entry.startcol - 2] =~# '^\s+$'
-    let a:entry.startcol = 0
+    let a:entry.startcol = 1
   endif
 
   " Highlight first-line to tail if the entry covers multiline.
@@ -114,5 +121,5 @@ function! gocover#highlight#apply_entry(entry, matchadd) abort
   endif
 
   " Highlight last line.
-  call a:matchadd(l:group, [[a:entry.endline, a:entry.endcol - 1]])
+  call a:matchadd(l:group, [[a:entry.endline, 1, a:entry.endcol - 1]])
 endfunction
