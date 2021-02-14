@@ -5,11 +5,10 @@
 " Author: kyoh86
 " License: MIT
 
-" Parse the coverage profile lines.
+""" Parse the coverage profile lines.
 function! gocover#profile#parse(raw_profile) abort
   let l:profile = {}
-  " Split coverage per-file.
-  for l:line in a:raw_profile[1:] " NOTE: 0th line notes 'mode: xxx'
+  for l:line in a:raw_profile[1:] " NOTE: 0th line is a modeline i.e. 'mode: xxx'
     let l:cov = s:parse_profile_line(l:line)
     if !has_key(l:profile, l:cov.file)
       let l:profile[l:cov.file] = []
@@ -19,7 +18,7 @@ function! gocover#profile#parse(raw_profile) abort
   return l:profile
 endfunction
 
-" Parses a single line in to a dict.
+""" Parses a single line in to a dict.
 "
 " The format of a line is:
 "   <package>/<file>.go:<startline>.<col>,<endline>.<col> <numstmt> <count>

@@ -22,19 +22,19 @@ COMMANDS                                                *go-coverage-commands*
         clear        Clear all existing highlighting.
         toggle       Toggle display of highlighting.
 
-                                 *hl-goCoverageCovered* *hl-goCoverageUncover*
+                                 *hl-goCoverageCovered* *hl-goCoverageUncovered*
         Note: it's impossible to highlight the background with a colour that
         is guaranteed to work well with all colour schemes. The default is to
         use something that works well with the default one and – hopefully –
         most common ones.
 
-        Override the goCoverageCovered and/or goCoverageUncover highlight
+        Override the goCoverageCovered and/or goCoverageUncovered highlight
         groups if the defaults don't work well for you.
 >
                 augroup my-go-coverage
                         au!
                         au Syntax go hi goCoverageCovered guibg=blue
-                        au Syntax go hi goCoverageUncover guibg=brown
+                        au Syntax go hi goCoverageUncovered guibg=brown
                 augroup end
 <
 

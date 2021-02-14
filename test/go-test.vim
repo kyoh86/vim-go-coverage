@@ -36,14 +36,14 @@ function! s:suite.test_package_in_subdir()
   call s:assert.equals(l:got_pkg, l:want_pkg)
 endfunction
 
-function! s:suite.test_coverprofile_valid()
+function! s:suite.test_profile_valid()
   let l:root_dir = expand('<sfile>:p:h') . '/test/pkg'
-  let l:got = gocover#go#coverprofile(l:root_dir . '/child1')
+  let l:got = gocover#go#profile(l:root_dir . '/child1')
   call s:assert.not_same(l:got, v:null)
 endfunction
 
-function! s:suite.test_coverprofile_notest()
+function! s:suite.test_profile_notest()
   let l:root_dir = expand('<sfile>:p:h') . '/test/pkg'
-  let l:got = gocover#go#coverprofile(l:root_dir . '/child2')
+  let l:got = gocover#go#profile(l:root_dir . '/child2')
   call s:assert.same(l:got, v:null)
 endfunction
