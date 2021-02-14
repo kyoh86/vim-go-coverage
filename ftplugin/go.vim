@@ -1,17 +1,17 @@
-if exists('b:did_go_coverage_ftplugin')
-  finish
-endif
-let b:did_go_coverage_ftplugin = 1
+scriptencoding utf-8
 
-call go#coverage#init#config()
+" go.vim
+"
+" Prepare commands for go-coverage
 
-" Commands
-command! -nargs=* -complete=customlist,go#coverage#complete GoCoverage call go#coverage#do(<f-args>)
+" Take coverage in path of the current window.
+"TODO: -complete
+"TODO: -tags
+"TODO: -run
+command! -buffer GoCover         call gocover#cover_current()
 
-" Autocmd
-augroup go-coverage
-  au!
+" Clear coverage in path of the current window.
+command! -buffer GoCoverClear    call gocover#clear_current()
 
-  au BufEnter *.go call go#coverage#go#set_build_package()
-  au BufEnter *.go call go#coverage#go#set_build_tags()
-augroup end
+" Clear all coverages.
+command! -buffer GoCoverClearAll call gocover#clear_all()

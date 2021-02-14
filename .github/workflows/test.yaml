@@ -1,0 +1,44 @@
+name: Test
+
+on:
+  push: {}
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  test-vim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y vim git
+      - name: Install themis
+        run: |
+          # Test framework
+          git clone --depth 1 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+      - name: Vim version
+        run: vim --version
+      - name: Run tests
+        run: /tmp/vim-themis/bin/themis -r
+
+  test-neovim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependency
+        run: |
+          sudo add-apt-repository ppa:neovim-ppa/unstable
+          sudo apt-get update
+          sudo apt-get install -y neovim git
+      - name: Install themis
+        run: |
+          # Test framework
+          git clone --depth 1 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+      - name: Neovim version
+        run: nvim --version
+      - name: Run tests
+        env:
+          THEMIS_VIM: nvim
+        run: /tmp/vim-themis/bin/themis -r
