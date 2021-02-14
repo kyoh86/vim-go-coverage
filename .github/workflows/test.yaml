@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo add-apt-repository ppa:neovim-ppa/stable
           sudo apt-get update
-          sudo apt-get install -y neovim git
+          sudo apt install -y neovim/focal git
       - name: Install themis
         run: |
           # Test framework
