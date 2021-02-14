@@ -15,6 +15,8 @@ jobs:
         run: |
           # Test framework
           git clone --depth 1 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+      - name: Vim version
+        run: vim --version
       - name: Run tests
         run: /tmp/vim-themis/bin/themis -r
 
@@ -30,6 +32,8 @@ jobs:
         run: |
           # Test framework
           git clone --depth 1 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+      - name: Neovim version
+        run: nvim --version
       - name: Run tests
         env:
           THEMIS_VIM: nvim
