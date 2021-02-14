@@ -34,6 +34,6 @@ jobs:
           git clone --depth 1 --single-branch https://github.com/kyoh86/vim-go-coverage /tmp/vim-go-coverage
       - name: Run tests
         env:
-          THEMIS_VIM=nvim
+          THEMIS_VIM: nvim
         run: /tmp/vim-themis/bin/themis -r
         working-directory: /tmp/vim-go-coverage
