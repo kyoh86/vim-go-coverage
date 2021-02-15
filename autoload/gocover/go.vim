@@ -23,12 +23,12 @@ function! s:exec(cmd, ...) abort
 endfunction
 
 """ Get the Go module name and the path, or empty if error.
-function! gocover#go#module(dir) abort
+function! gocover#go#__get_module(dir) abort
   let [l:result, l:err] = s:exec(
         \ ['go', 'list', '-m', '-f', "{{.Path}}\x1F{{.Dir}}"],
         \ {'cwd': a:dir})
   if l:err isnot# v:null
-    call gocover#view#error(join(l:err.stderr, '\n'))
+    call gocover#view#__error(join(l:err.stderr, '\n'))
     return []
   endif
   let l:terms = split(l:result.stdout[0], "\x1F")
@@ -39,10 +39,10 @@ function! gocover#go#module(dir) abort
 endfunction
 
 """ Get the package path for the dir or empty if error.
-function! gocover#go#package(dir) abort
+function! gocover#go#__get_package(dir) abort
   let [l:result, l:err] = s:exec(['go', 'list', './'], {'cwd': a:dir})
   if l:err isnot# v:null
-    call gocover#view#error(join(l:err.stderr, '\n'))
+    call gocover#view#__error(join(l:err.stderr, '\n'))
     return ''
   endif
 
@@ -50,19 +50,19 @@ function! gocover#go#package(dir) abort
 endfunction
 
 """ Get path to file as package/path/file.go
-function! gocover#go#packagefile(file) abort
-  return gocover#go#package(fnamemodify(a:file, ':h')) . '/' . expand(fnamemodify(a:file, ':t'))
+function! gocover#go#__get_package_file(file) abort
+  return gocover#go#__get_package(fnamemodify(a:file, ':h')) . '/' . expand(fnamemodify(a:file, ':t'))
 endfunction
 
 """ Run a test and get raw coverage profile
-function! gocover#go#profile(dir) abort
+function! gocover#go#__get_profile(dir) abort
   let l:tmp = tempname()
   try
     let [l:result, l:err] = s:exec(
           \ ['go', 'test', '-coverprofile', l:tmp],
           \ {'cwd': a:dir})
     if l:err isnot# v:null
-      call gocover#view#error(join(l:err.stderr, '\n'))
+      call gocover#view#__error(join(l:err.stderr, '\n'))
       return v:null
     endif
 

@@ -14,9 +14,7 @@ function! s:suite.test_simple()
   let l:want = [
         \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [5, 10, 20]},
         \ {'group': 'goCoverageUncovered', 'priority': 10, 'pos1': [6, 11, 1]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 0]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [8]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [9, 1, 1]}]
+        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 1000], 'pos2': [8], 'pos3': [9, 1, 1]}]
   " Remove id as it's not stable.
   let l:got = map(getmatches(), {i, v -> remove(l:v, 'id') is '' ? {} : l:v })
 
@@ -39,9 +37,7 @@ function! s:suite.test_samedir_otherwin()
   let l:want = [
         \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [5, 10, 20]},
         \ {'group': 'goCoverageUncovered', 'priority': 10, 'pos1': [6, 11, 1]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 0]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [8]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [9, 1, 1]}]
+        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 1000], 'pos2': [8], 'pos3': [9, 1, 1]}]
   " Remove id as it's not stable.
   let l:got = map(getmatches(l:target_win_id), {i, v -> remove(l:v, 'id') is '' ? {} : l:v })
 
@@ -65,9 +61,7 @@ function! s:suite.test_samedir_othertab()
   let l:want = [
         \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [5, 10, 20]},
         \ {'group': 'goCoverageUncovered', 'priority': 10, 'pos1': [6, 11, 1]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 0]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [8]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [9, 1, 1]}]
+        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 1000], 'pos2': [8], 'pos3': [9, 1, 1]}]
   " Remove id as it's not stable.
   let l:got = map(getmatches(l:target_win_id), {i, v -> remove(l:v, 'id') is '' ? {} : l:v })
 
@@ -93,9 +87,7 @@ function! s:suite.test_otherdir()
   let l:want = [
         \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [5, 10, 20]},
         \ {'group': 'goCoverageUncovered', 'priority': 10, 'pos1': [6, 11, 1]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 0]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [8]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [9, 1, 1]}]
+        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 1000], 'pos2': [8], 'pos3': [9, 1, 1]}]
   " Remove id as it's not stable.
   let l:got = map(getmatches(l:target_win_id), {i, v -> remove(l:v, 'id') is '' ? {} : l:v })
 
@@ -104,26 +96,6 @@ function! s:suite.test_otherdir()
 
   call gocover#clear_current()
   call s:assert.equal(getmatches(l:target_win_id), [])
-endfunction
-
-function! s:suite.test_buffer_shortage()
-  bufdo! bwipeout!
-  let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  execute 'edit ' . l:pkg_dir . '/foo.go'
-  7,9delete
-
-  call gocover#cover_current()
-
-  let l:want = [
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [5, 10, 20]},
-        \ {'group': 'goCoverageUncovered', 'priority': 10, 'pos1': [6, 11, 1]}]
-  " Remove id as it's not stable.
-  let l:got = map(getmatches(), {i, v -> remove(l:v, 'id') is '' ? {} : l:v })
-
-  call s:assert.equal(l:got, l:want)
-
-  call gocover#clear_current()
-  call s:assert.equal(getmatches(), [])
 endfunction
 
 function! s:suite.test_clear_on_edit()
@@ -136,9 +108,7 @@ function! s:suite.test_clear_on_edit()
   let l:want = [
         \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [5, 10, 20]},
         \ {'group': 'goCoverageUncovered', 'priority': 10, 'pos1': [6, 11, 1]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 0]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [8]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [9, 1, 1]}]
+        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 1000], 'pos2': [8], 'pos3': [9, 1, 1]}]
   " Remove id as it's not stable.
   let l:got = map(getmatches(), {i, v -> remove(l:v, 'id') is '' ? {} : l:v })
 
@@ -160,9 +130,7 @@ function! s:suite.test_cover_on_reopen()
   let l:want = [
         \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [5, 10, 20]},
         \ {'group': 'goCoverageUncovered', 'priority': 10, 'pos1': [6, 11, 1]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 0]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [8]},
-        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [9, 1, 1]}]
+        \ {'group': 'goCoverageCovered',   'priority': 10, 'pos1': [7, 10, 1000], 'pos2': [8], 'pos3': [9, 1, 1]}]
   " Remove id as it's not stable.
   let l:got = map(getmatches(), {i, v -> remove(l:v, 'id') is '' ? {} : l:v })
 

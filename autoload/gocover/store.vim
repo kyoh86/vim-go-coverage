@@ -16,12 +16,12 @@ let s:oldest_path = v:null
 let s:newest_path = v:null
 
 """ Get stored profile
-function! gocover#store#get(path) abort
+function! gocover#store#__get(path) abort
   return get(get(s:store, a:path, {}), 'coverage', v:null)
 endfunction
 
 """ Truncate stored profile with uplimit `g:gocover_store_size` (default: 10)
-function! gocover#store#truncate() abort
+function! gocover#store#__truncate() abort
   while s:oldest_path isnot# v:null && len(s:store) > get(g:, 'gocover_store_size', 10)
     let l:next = s:store[s:oldest_path].next_path
     call remove(s:store, s:oldest_path)
@@ -33,8 +33,8 @@ function! gocover#store#truncate() abort
 endfunction
 
 """ Store profile with the key (a:path)
-function! gocover#store#put(path, coverage) abort
-  call gocover#store#delete(a:path) " for overwritten
+function! gocover#store#__put(path, coverage) abort
+  call gocover#store#__delete(a:path) " for overwritten
 
   if s:oldest_path is# v:null || s:newest_path is# v:null
     let s:oldest_path = a:path
@@ -49,11 +49,11 @@ function! gocover#store#put(path, coverage) abort
     \ }
   let s:newest_path = a:path
 
-  call gocover#store#truncate()
+  call gocover#store#__truncate()
 endfunction
 
 """ Clear all stored profile
-function! gocover#store#clear() abort
+function! gocover#store#__clear() abort
   if len(s:store) is 0
     return v:false
   endif
@@ -65,7 +65,7 @@ function! gocover#store#clear() abort
 endfunction
 
 """ Retrieve stored paths (for test)
-function! gocover#store#paths() abort
+function! gocover#store#__paths() abort
   let l:paths = []
   let l:path = s:oldest_path
   while l:path isnot# v:null
@@ -76,7 +76,7 @@ function! gocover#store#paths() abort
 endfunction
 
 """ Delete profile for the key (a:path)
-function! gocover#store#delete(path) abort
+function! gocover#store#__delete(path) abort
   if !has_key(s:store, a:path)
     return v:false
   endif
@@ -100,6 +100,6 @@ function! gocover#store#delete(path) abort
 endfunction
 
 """ Count paths
-function! gocover#store#len() abort
+function! gocover#store#__len() abort
   return len(s:store)
 endfunction
