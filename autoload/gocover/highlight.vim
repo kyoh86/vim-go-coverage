@@ -27,14 +27,14 @@ function! s:update(dirpath, win_id) abort
   let l:bufnr = winbufnr(a:win_id)
   if getbufvar(l:bufnr, '&buftype') !=# ''
     " A buffer which is not normal: clear
-    call s:clear(a:win_id)
+    call gocover#highlight#clear(a:win_id)
     return
   endif
 
   let l:bufname = bufname(l:bufnr)
   if l:bufname[-3:] != '.go' || l:bufname[-8:] == '_test.go'
     " Not go file or the go-test file: clear
-    call s:clear(a:win_id)
+    call gocover#highlight#clear(a:win_id)
     return
   endif
 
@@ -45,7 +45,7 @@ function! s:update(dirpath, win_id) abort
     return
   endif
 
-  call s:clear(a:win_id)
+  call gocover#highlight#clear(a:win_id)
 
   let l:profile = gocover#store#__get(l:bufdirpath)
   if l:profile is# v:null
@@ -65,9 +65,14 @@ function! s:update(dirpath, win_id) abort
   endfor
 endfunction
 
+""" Clear coverage highlights for all windows.
+function! gocover#highlight#clear_all() abort
+  call gocover#view#__each_windows(function('gocover#highlight#clear'))
+endfunction
+
 """ Clear coverage highlights for the given window.
 " Clearing on current window, you must get win_id by `win_getid()`.
-function! s:clear(win_id) abort
+function! gocover#highlight#clear(win_id) abort
   for l:m in getmatches(a:win_id)
     if l:m.group is# 'goCoverageCovered' || l:m.group is# 'goCoverageUncovered'
       call matchdelete(l:m.id, a:win_id)

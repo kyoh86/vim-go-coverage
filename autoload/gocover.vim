@@ -28,7 +28,8 @@ augroup END
 function! s:set_autocmd() abort
   augroup gocover-update
     autocmd!
-    autocmd BufWinEnter,BufWinLeave *.go call gocover#highlight#update(win_getid())
+    autocmd BufWinEnter *.go call gocover#highlight#update(win_getid())
+    autocmd BufWinLeave *.go call gocover#highlight#clear(win_getid())
   augroup END
 endfun
 
@@ -76,7 +77,7 @@ endfunction
 """ Clear all coverages.
 function! gocover#clear_all() abort
   if gocover#store#__clear()
-    call gocover#highlight#update_all()
+    call gocover#highlight#clear_all()
   endif
   call s:unset_autocmd()
 endfunction
