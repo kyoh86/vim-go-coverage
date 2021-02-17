@@ -19,19 +19,27 @@ function! s:exec(cmd, ...) abort
   if len(a:000) > 0
     call extend(l:opt, a:1)
   endif
-  return s:Promise.wait(s:Process.start(a:cmd, l:opt))
+  return s:Process.start(a:cmd, l:opt)
+endfunction
+
+""" Report error when the exec failed.
+" You can use it with `Promise.catch`.
+function! s:report_error(alt, err) abort
+  call gocover#view#__error(join(a:err.stderr, '\n'))
+  return a:alt
 endfunction
 
 """ Get the Go module name and the path, or empty if error.
-function! gocover#go#module(dir) abort
-  let [l:result, l:err] = s:exec(
-        \ ['go', 'list', '-m', '-f', "{{.Path}}\x1F{{.Dir}}"],
-        \ {'cwd': a:dir})
-  if l:err isnot# v:null
-    call gocover#view#error(join(l:err.stderr, '\n'))
-    return []
-  endif
-  let l:terms = split(l:result.stdout[0], "\x1F")
+function! gocover#go#__get_module(dir) abort
+  return s:exec(
+    \ ['go', 'list', '-m', '-f', "{{.Path}}\x1F{{.Dir}}"],
+    \ {'cwd': a:dir})
+    \.then(function('s:parse_module'))
+    \.catch(function('s:report_error', [[]]))
+endfunction
+
+function! s:parse_module(res)
+  let l:terms = split(a:res.stdout[0], "\x1F")
   if len(l:terms) < 2
     return []
   endif
@@ -39,36 +47,24 @@ function! gocover#go#module(dir) abort
 endfunction
 
 """ Get the package path for the dir or empty if error.
-function! gocover#go#package(dir) abort
-  let [l:result, l:err] = s:exec(['go', 'list', './'], {'cwd': a:dir})
-  if l:err isnot# v:null
-    call gocover#view#error(join(l:err.stderr, '\n'))
-    return ''
-  endif
-
-  return l:result.stdout[0]
+function! gocover#go#__get_package(dir) abort
+  return s:exec(['go', 'list', './'], {'cwd': a:dir})
+    \.then({res -> res.stdout[0]})
+    \.catch(function('s:report_error', ['']))
 endfunction
 
 """ Get path to file as package/path/file.go
-function! gocover#go#packagefile(file) abort
-  return gocover#go#package(fnamemodify(a:file, ':h')) . '/' . expand(fnamemodify(a:file, ':t'))
+function! gocover#go#__get_package_file(file) abort
+  return gocover#go#__get_package(fnamemodify(a:file, ':h'))
+    \.then({pkg -> pkg . '/' . expand(fnamemodify(a:file, ':t'))})
 endfunction
 
 """ Run a test and get raw coverage profile
-function! gocover#go#profile(dir) abort
+function! gocover#go#__get_profile(dir) abort
   let l:tmp = tempname()
-  try
-    let [l:result, l:err] = s:exec(
-          \ ['go', 'test', '-coverprofile', l:tmp],
-          \ {'cwd': a:dir})
-    if l:err isnot# v:null
-      call gocover#view#error(join(l:err.stderr, '\n'))
-      return v:null
-    endif
-
-    let l:profile = readfile(l:tmp)
-  finally
-    call delete(l:tmp)
-  endtry
-  return l:profile
+  return s:exec(
+        \ ['go', 'test', '-coverprofile', l:tmp],
+        \ {'cwd': a:dir})
+        \.then({ -> readfile(l:tmp) }, function('s:report_error', [v:null]))
+        \.finally({ -> delete(l:tmp) })
 endfunction

@@ -2,124 +2,98 @@ scriptencoding utf-8
 
 " highlight.vim
 "
-" Highlight with a coverage profile parsed by gocover#profile#parse.
+" Highlight with a coverage profile parsed by gocover#profile#__parse.
 "
 " Author: kyoh86<me@kyoh86.dev>
 " License: MIT
 
 """ Apply stored coverage for all windows
-function! gocover#highlight#apply_all_windows() abort
-  call gocover#view#each_windows(function('gocover#highlight#apply_win_id'))
+function! gocover#highlight#update_all() abort
+  call gocover#view#__each_windows(function('gocover#highlight#update'))
 endfunction
 
-""" Collect informations for a window or the current window if 0,
-"  and highlight it as possible by stored coverage.
-function! gocover#highlight#apply_win_id(win_id) abort
-  let l:win_id = a:win_id is 0 ? win_getid() : a:win_id
+""" Apply stored coverage for all windows which in the dir
+function! gocover#highlight#update_dir(dirpath) abort
+  call gocover#view#__each_windows(function('s:update', [a:dirpath]))
+endfunction
 
-  call gocover#highlight#clear_win_id(l:win_id)
+""" Collect informations for a window and highlight it as possible by stored coverage.
+" Applying on current window, you must get win_id by `win_getid()`.
+function! gocover#highlight#update(win_id) abort
+  call s:update('', a:win_id)
+endfunction
 
-  let l:bufnr = winbufnr(l:win_id)
-  let l:buftype = getbufvar(l:bufnr, '&buftype')
-  if l:buftype !=# ''
-    " A buffer which is not normal
+function! s:update(dirpath, win_id) abort
+  let l:bufnr = winbufnr(a:win_id)
+  if getbufvar(l:bufnr, '&buftype') !=# ''
+    " A buffer which is not normal: clear
+    call gocover#highlight#clear(a:win_id)
     return
   endif
 
   let l:bufname = bufname(l:bufnr)
   if l:bufname[-3:] != '.go' || l:bufname[-8:] == '_test.go'
-    " Not go file or the go-test file
+    " Not go file or the go-test file: clear
+    call gocover#highlight#clear(a:win_id)
     return
   endif
 
   let l:bufpath = fnamemodify(l:bufname, ':p')
   let l:bufdirpath = fnamemodify(l:bufpath, ':h')
-  let l:profile = gocover#store#get(l:bufdirpath)
+  if a:dirpath !=# '' && a:dirpath !=# l:bufdirpath
+    " Not match for the directory path : NOOP
+    return
+  endif
+
+  call gocover#highlight#clear(a:win_id)
+
+  let l:profile = gocover#store#__get(l:bufdirpath)
   if l:profile is# v:null
     " Not found coverages for the directory
     return
   endif
 
-  let l:bufpackagefile = gocover#go#packagefile(l:bufpath)
-  let l:bufprofile = get(l:profile, l:bufpackagefile, v:null)
-  if l:bufprofile is# v:null
-    " Not found coverages for the file
-    return
-  endif
-
-  for l:entry in l:bufprofile
-    let l:entry = s:fit_entry(l:bufnr, l:entry)
-    if l:entry is# v:null
-      continue
-    endif
-    call gocover#highlight#apply_entry(l:entry, function('gocover#view#matchadd', [l:win_id]))
-  endfor
+  return gocover#go#__get_package_file(l:bufpath)
+    \.then({ file -> get(l:profile, file, v:null) })
+    \.then(function('s:apply', [function('gocover#view#__matchaddpos', [a:win_id])]))
 endfunction
 
-""" Apply stored coverage for all windows
-function! gocover#highlight#clear_all_windows() abort
-  call gocover#view#each_windows(function('gocover#highlight#clear_win_id'))
+""" Clear coverage highlights for all windows.
+function! gocover#highlight#clear_all() abort
+  call gocover#view#__each_windows(function('gocover#highlight#clear'))
 endfunction
 
-""" Clear coverage highlights for the given window, or the current window if 0.
-function! gocover#highlight#clear_win_id(win_id) abort
-  let l:win_id = a:win_id is 0 ? win_getid() : a:win_id
-
-  for l:m in getmatches(l:win_id)
+""" Clear coverage highlights for the given window.
+" Clearing on current window, you must get win_id by `win_getid()`.
+function! gocover#highlight#clear(win_id) abort
+  for l:m in getmatches(a:win_id)
     if l:m.group is# 'goCoverageCovered' || l:m.group is# 'goCoverageUncovered'
-      call matchdelete(l:m.id, l:win_id)
+      call matchdelete(l:m.id, a:win_id)
     endif
   endfor
 endfun
 
-""" Fix coverage profile positions to fit for a content of the buffer.
-function! s:fit_entry(bufnr, entry) abort
-  " Highlight entire lines, instead of starting at the first non-space
-  " character.
-  let l:lines = getbufline(a:bufnr, a:entry.startline)
-  if len(l:lines) is 0
-    return v:null
-  endif
-  let l:firstline = l:lines[0]
-  if l:firstline[:a:entry.startcol - 2] =~# '^\s+$'
-    let a:entry.startcol = 1
-  endif
-
-  " Highlight first-line to tail if the entry covers multiline.
-  let a:entry.firsttail = a:entry.endcol
-  if a:entry.endline > a:entry.startline
-    let a:entry.firsttail = len(l:firstline)
-  endif
-  return a:entry
-endfunction
-
-""" Highlight as described in entry.
-" @param entry The coverage entry for a file which
-" @param matchadd A function to highlight with group and the position.
-function! gocover#highlight#apply_entry(entry, matchadd) abort
-  let l:group = 'goCoverageCovered'
-  if a:entry.cnt is 0
-    let l:group = 'goCoverageUncovered'
-  endif
-
-  " Highlight first-line.
-  call a:matchadd(l:group, [[a:entry.startline, a:entry.startcol, a:entry.firsttail - a:entry.startcol]])
-
-  if a:entry.startline is a:entry.endline
+""" Highlight as described in profile.
+" @param matchaddpos A function to highlight with group and the position.
+"                    Usualy we should pass `gocover#view#__matchaddpos` bound win_id.
+" @param profile The coverage profile for a file which
+function! s:apply(matchaddpos, profile) abort
+  if a:profile is# v:null
     return
   endif
+  for l:entry in a:profile
+    let l:group = 'goCoverageCovered'
+    if l:entry.cnt is 0
+      let l:group = 'goCoverageUncovered'
+    endif
 
-  " Highlight lines in between.
-  if a:entry.endline > a:entry.startline + 1
-    let l:lines = []
-    let l:l = a:entry.startline
-    while l:l < a:entry.endline - 1
-      let l:l += 1
-      call add(l:lines, l:l)
-    endwhile
-    call a:matchadd(l:group, l:lines)
-  endif
-
-  " Highlight last line.
-  call a:matchadd(l:group, [[a:entry.endline, 1, a:entry.endcol - 1]])
+    " matchaddpos accepts max 8 positions at once.
+    for l:i in range(0, len(l:entry.positions), 8)
+      let l:pos = l:entry.positions[l:i : l:i+7]
+      if len(l:pos) is 0
+        break
+      endif
+      call a:matchaddpos(l:group, l:pos)
+    endfor
+  endfor
 endfunction

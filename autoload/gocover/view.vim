@@ -8,13 +8,13 @@ scriptencoding utf-8
 " License: MIT
 
 """ Shorthand for matchaddpos
-function! gocover#view#matchadd(win_id, group, pos) abort
+function! gocover#view#__matchaddpos(win_id, group, pos) abort
   call matchaddpos(a:group, a:pos, 10, -1, {'window': a:win_id})
 endfunction
 
 """ Enumerate windows in all of tabpages.
 " @param f handle a win_id.
-function! gocover#view#each_windows(f) abort
+function! gocover#view#__each_windows(f) abort
   for l:tabnr in range(1, tabpagenr('$'))
     for l:winnr in range (1, tabpagewinnr(l:tabnr, '$'))
       let l:win_id = win_getid(l:winnr, l:tabnr)
@@ -24,7 +24,7 @@ function! gocover#view#each_windows(f) abort
 endfunction
 
 """ Echo messages as debug level.
-function! gocover#view#debug(s) abort
+function! gocover#view#__debug(s) abort
   if &verbose is 0
     return
   endif
@@ -32,16 +32,16 @@ function! gocover#view#debug(s) abort
 endfunction
 
 """ Echo messages as info level.
-function! gocover#view#info(s) abort
+function! gocover#view#__info(s) abort
   echohl None | echomsg a:s
 endfunction
 
 """ Echo messages as warning level.
-function! gocover#view#warning(s) abort
+function! gocover#view#__warning(s) abort
   echohl WarningMsg | echomsg a:s | echohl None
 endfunction
 
 """ Echo messages as error level.
-function! gocover#view#error(s) abort
+function! gocover#view#__error(s) abort
   echohl ErrorMsg | echomsg a:s | echohl None
 endfunction
