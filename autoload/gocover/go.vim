@@ -35,7 +35,7 @@ function! gocover#go#__get_module(dir) abort
     \ ['go', 'list', '-m', '-f', "{{.Path}}\x1F{{.Dir}}"],
     \ {'cwd': a:dir})
     \.then(function('s:parse_module'))
-    \.catch(function('s:report_error', [v:null]))
+    \.catch(function('s:report_error', [[]]))
 endfunction
 
 function! s:parse_module(res)
