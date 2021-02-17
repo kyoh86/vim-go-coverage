@@ -43,20 +43,20 @@ endfun
 
 """ Take coverage in the path.
 function! gocover#cover(dir) abort
-  let l:raw_profile = gocover#go#__get_profile(a:dir)
-  if l:raw_profile is# v:null
-    return
-  endif
-  let l:profile = gocover#profile#__parse(l:raw_profile)
-  call gocover#store#__put(a:dir, l:profile)
-  call gocover#highlight#update_dir(a:dir)
-  call s:set_autocmd()
+  return s:Promise.chain([
+    \   gocover#go#__get_profile(a:dir),
+    \   { raw -> gocover#profile#__parse(raw) },
+    \   { prof -> gocover#store#__put(a:dir, prof) },
+    \   { -> gocover#highlight#update_dir(a:dir) },
+    \   { -> s:set_autocmd() },
+    \   { -> execute('redraw', '')},
+    \ ])
 endfunction
 
 """ Take coverage in path of the current buffer.
 function! gocover#cover_current() abort
   let l:dir = expand('%:p:h')
-  call gocover#cover(l:dir)
+  return gocover#cover(l:dir)
 endfunction
 
 """ Clear coverage in the path.

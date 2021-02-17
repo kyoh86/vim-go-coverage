@@ -53,16 +53,9 @@ function! s:update(dirpath, win_id) abort
     return
   endif
 
-  let l:bufpackagefile = gocover#go#__get_package_file(l:bufpath)
-  let l:bufprofile = get(l:profile, l:bufpackagefile, v:null)
-  if l:bufprofile is# v:null
-    " Not found coverages for the file
-    return
-  endif
-
-  for l:entry in l:bufprofile
-    call s:apply(l:entry, function('gocover#view#__matchaddpos', [a:win_id]))
-  endfor
+  return gocover#go#__get_package_file(l:bufpath)
+    \.then({ file -> get(l:profile, file, v:null) })
+    \.then(function('s:apply', [function('gocover#view#__matchaddpos', [a:win_id])]))
 endfunction
 
 """ Clear coverage highlights for all windows.
@@ -80,22 +73,27 @@ function! gocover#highlight#clear(win_id) abort
   endfor
 endfun
 
-""" Highlight as described in entry.
-" @param entry The coverage entry for a file which
+""" Highlight as described in profile.
 " @param matchaddpos A function to highlight with group and the position.
 "                    Usualy we should pass `gocover#view#__matchaddpos` bound win_id.
-function! s:apply(entry, matchaddpos) abort
-  let l:group = 'goCoverageCovered'
-  if a:entry.cnt is 0
-    let l:group = 'goCoverageUncovered'
+" @param profile The coverage profile for a file which
+function! s:apply(matchaddpos, profile) abort
+  if a:profile is# v:null
+    return
   endif
-
-  " matchaddpos accepts max 8 positions at once.
-  for l:i in range(0, len(a:entry.positions), 8)
-    let l:pos = a:entry.positions[l:i : l:i+7]
-    if len(l:pos) is 0
-      break
+  for l:entry in a:profile
+    let l:group = 'goCoverageCovered'
+    if l:entry.cnt is 0
+      let l:group = 'goCoverageUncovered'
     endif
-    call a:matchaddpos(l:group, l:pos)
+
+    " matchaddpos accepts max 8 positions at once.
+    for l:i in range(0, len(l:entry.positions), 8)
+      let l:pos = l:entry.positions[l:i : l:i+7]
+      if len(l:pos) is 0
+        break
+      endif
+      call a:matchaddpos(l:group, l:pos)
+    endfor
   endfor
 endfunction
