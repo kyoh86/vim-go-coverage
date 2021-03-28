@@ -13,11 +13,11 @@ This plugin is extracted from
 COMMANDS                                                 *go-coverage-commands*
 
 :GoCover                                                             *:GoCover*
-        Run `go test -cover` on the current directory (`%:h`) and highlight
+        Run `go test -cover` on the current directory (`%:p:h`) and highlight
         lines reported as covered and uncovered.
 
 :GoCoverClear
-        Clear coverage and highlight in the current directory (`%:h`).
+        Clear coverage and highlight in the current directory (`%:p:h`).
 
 :GoCoverClearAll
         Clear all coverages and highlights.

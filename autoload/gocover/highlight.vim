@@ -39,7 +39,7 @@ function! s:update(dirpath, win_id) abort
   endif
 
   let l:bufpath = fnamemodify(l:bufname, ':p')
-  let l:bufdirpath = fnamemodify(l:bufpath, ':h')
+  let l:bufdirpath = fnamemodify(l:bufpath, ':h:p')
   if a:dirpath !=# '' && a:dirpath !=# l:bufdirpath
     " Not match for the directory path : NOOP
     return

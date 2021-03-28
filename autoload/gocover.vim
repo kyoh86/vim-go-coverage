@@ -57,6 +57,16 @@ function! gocover#cover_current() abort
   return gocover#cover(l:dir)
 endfunction
 
+function! gocover#_cover_command(...) abort
+  if a:0 is 0
+    call gocover#cover_current()
+  else
+    for l:dir in a:000
+      call gocover#cover(fnamemodify(l:dir, ':p'))
+    endfor
+  end
+endfunction
+
 """ Clear coverage in the path.
 function! gocover#clear(dir) abort
   let l:deleted = gocover#store#__delete(a:dir)
@@ -70,6 +80,16 @@ endfunction
 function! gocover#clear_current() abort
   let l:dir = expand('%:p:h')
   call gocover#clear(l:dir)
+endfunction
+
+function! gocover#_clear_command(...) abort
+  if a:0 is 0
+    call gocover#clear_current()
+  else
+    for l:dir in a:000
+      call gocover#clear(fnamemodify(l:dir, ':p'))
+    endfor
+  end
 endfunction
 
 """ Clear all coverages.

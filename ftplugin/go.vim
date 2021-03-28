@@ -5,13 +5,11 @@ scriptencoding utf-8
 " Prepare commands for go-coverage
 
 " Take coverage in path of the current window.
-"TODO: -complete
 "TODO: -tags
-"TODO: -run
-command! -buffer GoCover         call gocover#cover_current()
+command! -buffer -nargs=* GoCover       call gocover#_cover_command(<f-args>)
 
 " Clear coverage in path of the current window.
-command! -buffer GoCoverClear    call gocover#clear_current()
+command! -buffer -nargs=* GoCoverClear call gocover#_clear_command(<f-args>)
 
 " Clear all coverages.
-command! -buffer GoCoverClearAll call gocover#clear_all()
+command! -buffer GoCoverClearAll       call gocover#clear_all()

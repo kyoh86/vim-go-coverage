@@ -15,9 +15,21 @@ let s:store = {}
 let s:oldest_path = v:null
 let s:newest_path = v:null
 
+function! s:normalize_path(path)
+  let l:path = fnamemodify(simplify(a:path), ':p')
+  if has("win16") || has("win32") || has("win64")
+    let l:path = trim(l:path, "/\\", 2)
+  elseif l:path ==# '/'
+    return l:path
+  else
+    let l:path = trim(l:path, "/", 2)
+  endif
+  return l:path
+endfunction
+
 """ Get stored profile
 function! gocover#store#__get(path) abort
-  return get(get(s:store, a:path, {}), 'coverage', v:null)
+  return get(get(s:store, s:normalize_path(a:path), {}), 'coverage', v:null)
 endfunction
 
 """ Truncate stored profile with uplimit `g:gocover_store_size` (default: 10)
@@ -34,20 +46,21 @@ endfunction
 
 """ Store profile with the key (a:path)
 function! gocover#store#__put(path, coverage) abort
-  call gocover#store#__delete(a:path) " for overwritten
+  let l:path = s:normalize_path(a:path)
+  call gocover#store#__delete(l:path) " for overwritten
 
   if s:oldest_path is# v:null || s:newest_path is# v:null
-    let s:oldest_path = a:path
-    let s:newest_path = a:path
+    let s:oldest_path = l:path
+    let s:newest_path = l:path
   else
-    let s:store[s:newest_path].next_path = a:path
+    let s:store[s:newest_path].next_path = l:path
   endif
-  let s:store[a:path] = {
+  let s:store[l:path] = {
     \ 'next_path': v:null,
     \ 'prev_path': s:newest_path,
     \ 'coverage': a:coverage,
     \ }
-  let s:newest_path = a:path
+  let s:newest_path = l:path
 
   call gocover#store#__truncate()
 endfunction
@@ -77,15 +90,16 @@ endfunction
 
 """ Delete profile for the key (a:path)
 function! gocover#store#__delete(path) abort
-  if !has_key(s:store, a:path)
+  let l:path = s:normalize_path(a:path)
+  if !has_key(s:store, l:path)
     return v:false
   endif
 
-  let l:target = s:store[a:path]
-  if s:oldest_path ==# a:path
+  let l:target = s:store[l:path]
+  if s:oldest_path ==# l:path
     let s:oldest_path = l:target.next_path
   endif
-  if s:newest_path ==# a:path
+  if s:newest_path ==# l:path
     let s:newest_path = l:target.prev_path
   endif
   if l:target.prev_path isnot# v:null
@@ -94,7 +108,7 @@ function! gocover#store#__delete(path) abort
   if l:target.next_path isnot# v:null
     let s:store[l:target.next_path].prev_path = l:target.prev_path
   endif
-  call remove(s:store, a:path)
+  call remove(s:store, l:path)
 
   return v:true
 endfunction
