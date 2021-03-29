@@ -60,10 +60,10 @@ function! gocover#go#__get_package_file(file) abort
 endfunction
 
 """ Run a test and get raw coverage profile
-function! gocover#go#__get_profile(dir) abort
+function! gocover#go#__get_profile(args, dir) abort
   let l:tmp = tempname()
   return s:exec(
-        \ ['go', 'test', '-coverprofile', l:tmp],
+        \ ['go', 'test', '-coverprofile', l:tmp] + a:args,
         \ {'cwd': a:dir})
         \.then({ -> readfile(l:tmp) }, function('s:report_error', [v:null]))
         \.finally({ -> delete(l:tmp) })

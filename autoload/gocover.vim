@@ -42,8 +42,8 @@ function! s:unset_autocmd() abort
 endfun
 
 """ Take coverage in the path.
-function! gocover#cover(dir) abort
-  return gocover#go#__get_profile(a:dir)
+function! gocover#cover(args, dir) abort
+  return gocover#go#__get_profile(a:args, a:dir)
     \.then({ raw -> gocover#profile#__parse(raw) })
     \.then({ prof -> gocover#store#__put(a:dir, prof) })
     \.then({ -> gocover#highlight#update_dir(a:dir) })
@@ -52,17 +52,30 @@ function! gocover#cover(dir) abort
 endfunction
 
 """ Take coverage in path of the current buffer.
-function! gocover#cover_current() abort
+function! gocover#cover_current(args) abort
   let l:dir = expand('%:p:h')
-  return gocover#cover(l:dir)
+  return gocover#cover(a:args, l:dir)
 endfunction
 
 function! gocover#_cover_command(...) abort
-  if a:0 is 0
-    call gocover#cover_current()
+  let l:args = []
+  let l:tags = []
+  let l:tags_index = -2
+  for l:i, l:arg in a:000
+    if l:arg ==# '-tags'
+      let l:tags_index = l:i
+      let l:tags = add(l:tags, l:arg)
+    elseif l:i is l:tags_index + 1
+      let l:tags = add(l:tags, l:arg)
+    else
+      let l:args = add(l:args, l:arg)
+    endif
+  endfor
+  if len(l:args) is 0
+    call gocover#cover_current(l:tags)
   else
     for l:dir in a:000
-      call gocover#cover(fnamemodify(l:dir, ':p'))
+      call gocover#cover(l:tags, fnamemodify(l:dir, ':p'))
     endfor
   end
 endfunction
@@ -98,4 +111,32 @@ function! gocover#clear_all() abort
     call gocover#highlight#clear_all()
   endif
   call s:unset_autocmd()
+endfunction
+
+function! gocover#complete(lead, cmdline, cursor) abort
+  " return gopher#compl#filter(a:lead, ['clear', 'toggle', '-run', '-race', '-tags'])
+  if a:lead ==# ''
+    if a:cmdline =~# '-tags \+$'
+      return gocover#tags#find('%')
+    end
+    let l:dirs = filter(globpath('.', '*', v:true, v:true), {_, v -> isdirectory(v)})
+    if a:cmdline =~# ' -tags '
+      return l:dirs
+    end
+    return ['-tags'] + l:dirs
+  elseif '-tags' =~# '^' .. a:lead
+    return ['-tags']
+  elseif split(a:cmdline, ' \+')[-2] ==# '-tags'
+    if a:lead =~# ',$'
+      let l:used = {}
+      for l:u in split(a:lead, ',')
+        let l:used[l:u] = v:true
+      endfor
+      return map(filter(gocover#tags#find('%'), {_, v -> get(l:used, v, v:false) isnot# v:true}), {_, v -> a:lead .. v})
+    else
+      return filter(gocover#tags#find('%'), {_, v -> v =~# '^' .. a:lead})
+    end
+  else
+    return filter(globpath('.', '*', v:true, v:true), {_, v -> isdirectory(v) && v =~# '^' .. a:lead})
+  endif
 endfunction

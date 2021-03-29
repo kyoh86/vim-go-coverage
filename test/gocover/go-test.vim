@@ -58,7 +58,7 @@ endfunction
 
 function! s:suite.test_profile_simple()
   let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  let [l:result, l:err] = s:Promise.wait(gocover#go#__get_profile(l:pkg_dir))
+  let [l:result, l:err] = s:Promise.wait(gocover#go#__get_profile([], l:pkg_dir))
   call s:assert.same(l:err, v:null, 'not error')
   call s:assert.not_empty(l:result, 'filled any')
 endfunction
