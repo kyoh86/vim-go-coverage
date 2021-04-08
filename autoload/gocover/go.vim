@@ -25,7 +25,7 @@ endfunction
 """ Report error when the exec failed.
 " You can use it with `Promise.catch`.
 function! s:report_error(alt, err) abort
-  call gocover#view#__error(join(a:err.stderr, '\n'))
+  call gocover#view#__error(a:err.stdout + a:err.stderr)
   return a:alt
 endfunction
 

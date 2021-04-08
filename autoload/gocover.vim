@@ -61,7 +61,8 @@ function! gocover#_cover_command(...) abort
   let l:args = []
   let l:tags = []
   let l:tags_index = -2
-  for l:i, l:arg in a:000
+  let l:i = 0
+  for l:arg in a:000
     if l:arg ==# '-tags'
       let l:tags_index = l:i
       let l:tags = add(l:tags, l:arg)
@@ -70,6 +71,7 @@ function! gocover#_cover_command(...) abort
     else
       let l:args = add(l:args, l:arg)
     endif
+    let l:i = l:i + 1
   endfor
   if len(l:args) is 0
     call gocover#cover_current(l:tags)
