@@ -9,10 +9,10 @@ let s:Promise = s:V.import('Async.Promise')
 function! s:suite.test_simple()
   bufdo! bwipeout!
   let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  execute 'new ' . l:pkg_dir . '/foo_test.go'
-  execute 'new ' . l:pkg_dir . '/foo.go'
+  execute 'new ' . l:pkg_dir . '/success_test.go'
+  execute 'new ' . l:pkg_dir . '/success.go'
 
-  let [_, l:err] = s:Promise.wait(gocover#cover_current())
+  let [_, l:err] = s:Promise.wait(gocover#cover_current([]))
   call s:assert.same(l:err, v:null)
   sleep 100m
 
@@ -32,12 +32,12 @@ endfunction
 function! s:suite.test_samedir_otherwin()
   bufdo! bwipeout!
   let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  execute 'new ' . l:pkg_dir . '/foo.go'
+  execute 'new ' . l:pkg_dir . '/success.go'
   let l:target_win_id = win_getid()
-  execute 'new ' . l:pkg_dir . '/foo_test.go'
+  execute 'new ' . l:pkg_dir . '/success_test.go'
   let l:test_win_id = win_getid()
 
-  let [_, l:err] = s:Promise.wait(gocover#cover_current())
+  let [_, l:err] = s:Promise.wait(gocover#cover_current([]))
   call s:assert.same(l:err, v:null)
   sleep 100m
 
@@ -58,12 +58,12 @@ endfunction
 function! s:suite.test_samedir_othertab()
   bufdo! bwipeout!
   let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  execute 'new ' . l:pkg_dir . '/foo.go'
+  execute 'new ' . l:pkg_dir . '/success.go'
   let l:target_win_id = win_getid()
-  execute 'tabnew ' . l:pkg_dir . '/foo_test.go'
+  execute 'tabnew ' . l:pkg_dir . '/success_test.go'
   let l:other_win_id = win_getid()
 
-  let [_, l:err] = s:Promise.wait(gocover#cover_current())
+  let [_, l:err] = s:Promise.wait(gocover#cover_current([]))
   call s:assert.same(l:err, v:null)
   sleep 100m
 
@@ -84,14 +84,14 @@ endfunction
 function! s:suite.test_otherdir()
   bufdo! bwipeout!
   let l:other_pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child1'
-  execute 'new ' . l:other_pkg_dir . '/foo.go'
+  execute 'new ' . l:other_pkg_dir . '/success.go'
   let l:other_win_id = win_getid()
 
   let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  execute 'new ' . l:pkg_dir . '/foo.go'
+  execute 'new ' . l:pkg_dir . '/success.go'
   let l:target_win_id = win_getid()
 
-  let [_, l:err] = s:Promise.wait(gocover#cover_current())
+  let [_, l:err] = s:Promise.wait(gocover#cover_current([]))
   call s:assert.same(l:err, v:null)
   sleep 100m
 
@@ -112,9 +112,9 @@ endfunction
 function! s:suite.test_clear_on_edit()
   bufdo! bwipeout!
   let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  execute 'edit ' . l:pkg_dir . '/foo.go'
+  execute 'edit ' . l:pkg_dir . '/success.go'
 
-  let [_, l:err] = s:Promise.wait(gocover#cover_current())
+  let [_, l:err] = s:Promise.wait(gocover#cover_current([]))
   call s:assert.same(l:err, v:null)
   sleep 100m
 
@@ -127,18 +127,18 @@ function! s:suite.test_clear_on_edit()
 
   call s:assert.equal(l:got, l:want)
 
-  execute 'edit ' . l:pkg_dir . '/foo_test.go'
+  execute 'edit ' . l:pkg_dir . '/success_test.go'
   call s:assert.equal(getmatches(), [])
 endfunction
 
 function! s:suite.test_cover_on_reopen()
   bufdo! bwipeout!
   let l:pkg_dir = expand('<sfile>:p:h') . '/test/pkg/child2'
-  execute 'edit ' . l:pkg_dir . '/foo.go'
-  execute 'edit ' . l:pkg_dir . '/foo_test.go'
-  execute 'edit ' . l:pkg_dir . '/foo.go'
+  execute 'edit ' . l:pkg_dir . '/success.go'
+  execute 'edit ' . l:pkg_dir . '/success_test.go'
+  execute 'edit ' . l:pkg_dir . '/success.go'
 
-  let [_, l:err] = s:Promise.wait(gocover#cover_current())
+  let [_, l:err] = s:Promise.wait(gocover#cover_current([]))
   call s:assert.same(l:err, v:null)
   sleep 100m
 
