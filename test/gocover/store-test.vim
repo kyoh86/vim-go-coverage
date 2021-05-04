@@ -44,7 +44,7 @@ function! s:suite.test_store_simple()
 
   " TEST (check paths)
   let l:got = gocover#store#__paths()
-  let l:want = ['entry-2']
+  let l:want = [fnamemodify('entry-2', ':p')]
   call s:assert.equals(l:got, l:want, 'truncated data should have newest paths')
 
   " DO (put entry-3 -> extruded, {entry-3})
@@ -52,7 +52,7 @@ function! s:suite.test_store_simple()
 
   " TEST (find entry-3: found)
   let l:got = gocover#store#__paths()
-  let l:want = ['entry-3']
+  let l:want = [fnamemodify('entry-3', ':p')]
   call s:assert.equals(l:got, l:want, 'extruded data should have newest paths')
 endfunction
 
@@ -66,7 +66,7 @@ function! s:suite.test_store_update()
 
   " CHECK (ordered)
   let l:got = gocover#store#__paths()
-  let l:want = ['entry-1', 'entry-2', 'entry-3']
+  let l:want = map(['entry-1', 'entry-2', 'entry-3'], {_, n -> fnamemodify(n, ':p')})
   call s:assert.equals(l:got, l:want, 'failed to prepare fixture')
 
   " DO (update entry-1 -> {entry-2, entry-3, entry-1})
@@ -74,7 +74,7 @@ function! s:suite.test_store_update()
 
   " TEST (check paths: order changed)
   let l:got = gocover#store#__paths()
-  let l:want = ['entry-2', 'entry-3', 'entry-1']
+  let l:want = map(['entry-2', 'entry-3', 'entry-1'], {_, n -> fnamemodify(n, ':p')})
   call s:assert.equals(l:got, l:want, 'updated entry should be newest')
 
   " TEST (find entry-1: updated)
@@ -92,7 +92,7 @@ function! s:suite.test_store_update()
 
   " TEST (check paths: order changed overrapped)
   let l:got = gocover#store#__paths()
-  let l:want = ['entry-3', 'entry-1', 'entry-2']
+  let l:want = map(['entry-3', 'entry-1', 'entry-2'], {_, n -> fnamemodify(n, ':p')})
   call s:assert.equals(l:got, l:want, 'more updated entry should be newest')
 
   " DO (overflow -> {entry-1, entry-2, entry-4})
