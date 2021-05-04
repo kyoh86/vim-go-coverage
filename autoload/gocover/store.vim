@@ -18,11 +18,11 @@ let s:newest_path = v:null
 function! s:normalize_path(path)
   let l:path = fnamemodify(simplify(a:path), ':p')
   if has("win16") || has("win32") || has("win64")
-    let l:path = trim(l:path, "/\\", 2)
+    let l:path = substitute(l:path, '/\\\+$', '', '')
   elseif l:path ==# '/'
     return l:path
   else
-    let l:path = trim(l:path, "/", 2)
+    let l:path = substitute(l:path, '/\+$', '', '')
   endif
   return l:path
 endfunction
