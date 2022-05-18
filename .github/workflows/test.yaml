@@ -9,7 +9,7 @@ jobs:
   test-vim:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependency
         run: |
           sudo apt-get update
@@ -26,7 +26,7 @@ jobs:
   test-neovim:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependency
         run: |
           sudo add-apt-repository ppa:neovim-ppa/unstable
